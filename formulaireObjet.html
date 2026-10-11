@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>Sprint 7 bis - Formulaire Objet</title></head>
+<body>
+    <h2>[Sprint 7 bis] Binding d'un objet Employe</h2>
+    <p>Le framework instancie <strong>Employe</strong> (constructeur sans argument)
+    puis remplit <code>nom</code>, <code>poste</code>, <code>age</code> a partir de
+    la requete : via le setter <code>setXxx</code> s'il existe, sinon par acces direct
+    (reflexion).</p>
+    <form action="http://localhost:8080/TestApplication/employe/save-objet" method="POST">
+        Nom : <input type="text" name="nom"><br>
+        Poste : <input type="text" name="poste"><br>
+        Age : <input type="text" name="age"><br>
+        <button type="submit">Soumettre</button>
+    </form>
+
+    <p><em>Test en ligne : ouvrez plutot http://localhost:8080/TestApplication/employe/formulaire-objet
+    (le FrontController intercepte toutes les URLs du projet).</em></p>
+</body>
+</html>
