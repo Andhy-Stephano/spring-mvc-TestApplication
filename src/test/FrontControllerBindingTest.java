@@ -98,10 +98,42 @@ public class FrontControllerBindingTest {
         verifierThrow("bind(age='vingt') -> BindingException",
                 () -> FrontControllerServlet.bind(paramsInvalides, pAge));
 
-        // Parametre objet complexe -> BindingException (Sprint 7 bis)
-        Method mObj = EmployeBindingController.class.getMethod("saveEmploye", Employe.class);
-        verifierThrow("bind(Employe) -> BindingException",
-                () -> FrontControllerServlet.bind(new HashMap<>(), mObj.getParameters()[0]));
+        System.out.println("--- 5) SPRINT 7 BIS : bindObject (objet complexe) ---");
+
+        // Remplissage d'un Employe via les SETTERS
+        Map<String, String> paramsEmploye = new HashMap<>();
+        paramsEmploye.put("nom", "Rakoto");
+        paramsEmploye.put("poste", "Developpeur");
+        paramsEmploye.put("age", "28");
+        Employe emp = (Employe) FrontControllerServlet.bindObject(Employe.class, paramsEmploye);
+        verifier("bindObject(Employe).nom=Rakoto (setter)", emp.getNom(), "Rakoto");
+        verifier("bindObject(Employe).poste=Developpeur (setter)", emp.getPoste(), "Developpeur");
+        verifier("bindObject(Employe).age=28 (setter)", emp.getAge(), 28);
+
+        // Remplissage d'une Personne SANS setter -> ACCES DIRECT par reflexion
+        Map<String, String> paramsPersonne = new HashMap<>();
+        paramsPersonne.put("nom", "Bema");
+        paramsPersonne.put("age", "31");
+        Personne p = (Personne) FrontControllerServlet.bindObject(Personne.class, paramsPersonne);
+        verifier("bindObject(Personne).nom=Bema (acces direct)", p.getNom(), "Bema");
+        verifier("bindObject(Personne).age=31 (acces direct)", p.getAge(), 31);
+
+        // Valeurs par defaut : champs absents de la requete
+        Personne pVide = (Personne) FrontControllerServlet.bindObject(
+                Personne.class, new HashMap<>());
+        verifier("bindObject(Personne) absent: nom=null", pVide.getNom(), null);
+        verifier("bindObject(Personne) absent: age=0", pVide.getAge(), 0);
+
+        // Champ NON simple (List) ignore -> reste null
+        Map<String, String> paramsList = new HashMap<>();
+        paramsList.put("nom", "Rakoto");
+        paramsList.put("competences", "Java,SQL");
+        Personne pList = (Personne) FrontControllerServlet.bindObject(Personne.class, paramsList);
+        verifier("bindObject(champ List ignore)=null", pList.getCompetences(), null);
+
+        // Absence de constructeur sans argument -> BindingException
+        verifierThrow("bindObject(sans constructeur) -> BindingException",
+                () -> FrontControllerServlet.bindObject(NoCtorEmploye.class, new HashMap<>()));
 
         System.out.println("====================================");
         System.out.println("RESULTATS : " + ok + " OK, " + ko + " ERREUR(S)");
@@ -133,6 +165,14 @@ public class FrontControllerBindingTest {
 
     private interface Action {
         void executer() throws Exception;
+    }
+
+    // Classe SANS constructeur sans argument -> bindObject doit lever BindingException
+    private static class NoCtorEmploye {
+        private String nom;
+
+        NoCtorEmploye(int interdit) {
+        }
     }
 
     private static void verifierThrow(String nom, Action action) {

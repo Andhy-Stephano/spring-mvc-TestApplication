@@ -36,9 +36,14 @@ public class EmployeBindingController {
             + "<button type=\"submit\">Tester age obligatoire manquant</button>"
             + "</form>"
             + "<form action=\"http://localhost:8080/TestApplication/employe/save-object\" method=\"POST\">"
-            + "<p>Parametre objet Employe -> BindingException (Sprint 7 bis)</p>"
-            + "<button type=\"submit\">Tester objet complexe</button>"
+            + "<p>Sprint 7 bis - Binding d'un OBJET Employe (setters)</p>"
+            + "Nom : <input type=\"text\" name=\"nom\"><br>"
+            + "Poste : <input type=\"text\" name=\"poste\"><br>"
+            + "Age : <input type=\"text\" name=\"age\"><br>"
+            + "<button type=\"submit\">Tester objet Employe</button>"
             + "</form>"
+            + "<p><a href=\"http://localhost:8080/TestApplication/employe/formulaire-objet\">"
+            + "Voir le formulaire objet separe</a></p>"
             + "<form action=\"http://localhost:8080/TestApplication/employe/request\" method=\"POST\">"
             + "<p>Injection de HttpServletRequest</p>"
             + "<button type=\"submit\">Tester injection</button>"
@@ -68,10 +73,40 @@ public class EmployeBindingController {
         return "Age obligatoire fourni : " + age;
     }
 
-    // Cas 4 : parametre objet complexe -> BindingException (reserve au Sprint 7 bis)
+    // Cas 4 : SPRINT 7 BIS - parametre OBJET Employe (rempli par le framework)
     @GetMapping(value = "/employe/save-object", method = {HttpMethod.POST})
     public String saveEmploye(Employe employe) {
-        return "Objet Employe recu : " + employe.getNom();
+        return "Objet Employe recu : nom=" + employe.getNom()
+                + ", poste=" + employe.getPoste()
+                + ", age=" + employe.getAge();
+    }
+
+    // Vue du formulaire objet : GET /employe/formulaire-objet
+    @GetMapping(value = "/employe/formulaire-objet", method = {HttpMethod.GET})
+    public String formulaireObjet() {
+        return "<!DOCTYPE html>"
+            + "<html>"
+            + "<head><title>Sprint 7 bis - Formulaire Objet</title></head>"
+            + "<body>"
+            + "<h2>[Sprint 7 bis] Binding d'un objet Employe</h2>"
+            + "<p>Le framework instancie Employe et remplit nom / poste / age "
+            + "a partir de la requete (setter setXxx, sinon acces direct).</p>"
+            + "<form action=\"http://localhost:8080/TestApplication/employe/save-objet\" method=\"POST\">"
+            + "Nom : <input type=\"text\" name=\"nom\"><br>"
+            + "Poste : <input type=\"text\" name=\"poste\"><br>"
+            + "Age : <input type=\"text\" name=\"age\"><br>"
+            + "<button type=\"submit\">Soumettre</button>"
+            + "</form>"
+            + "</body>"
+            + "</html>";
+    }
+
+    // Cas principal 7 bis : POST /employe/save-objet avec argument Employe
+    @GetMapping(value = "/employe/save-objet", method = {HttpMethod.POST})
+    public String saveObjet(Employe employe) {
+        return "Employe complet : nom=" + employe.getNom()
+                + ", poste=" + employe.getPoste()
+                + ", age=" + employe.getAge();
     }
 
     // Cas 5 : injection de HttpServletRequest
