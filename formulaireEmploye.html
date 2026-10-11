@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><title>Sprint 7 - Formulaire Employe</title></head>
+<body>
+    <h2>[Sprint 7] Ajout d'un employe (data binding)</h2>
+    <form action="http://localhost:8080/TestApplication/employe/save" method="POST">
+        Nom : <input type="text" name="nom" required><br>
+        Age : <input type="text" name="age" required><br>
+        Salaire : <input type="text" name="salaire" required><br>
+        <button type="submit">Soumettre</button>
+    </form>
+    <hr>
+
+    <h3>Autres tests du Sprint 7</h3>
+    <form action="http://localhost:8080/TestApplication/employe/save-name" method="POST">
+        <p>Binding par nom de parametre (sans @RequestParam)</p>
+        Nom : <input type="text" name="nom"><br>
+        Age : <input type="text" name="age"><br>
+        <button type="submit">Tester binding par nom</button>
+    </form>
+
+    <form action="http://localhost:8080/TestApplication/employe/check" method="POST">
+        <p>Parametre age obligatoire ABSENT -> BindingException</p>
+        <button type="submit">Tester age obligatoire manquant</button>
+    </form>
+
+    <form action="http://localhost:8080/TestApplication/employe/save-object" method="POST">
+        <p>Parametre objet Employe -> BindingException (Sprint 7 bis)</p>
+        <button type="submit">Tester objet complexe</button>
+    </form>
+
+    <form action="http://localhost:8080/TestApplication/employe/request" method="POST">
+        <p>Injection de HttpServletRequest</p>
+        <button type="submit">Tester injection</button>
+    </form>
+
+    <p><em>Note : pour tester en ligne, ouvrez plutot http://localhost:8080/TestApplication/employe/formulaire
+    (le FrontController intercepte toutes les URLs du projet).</em></p>
+</body>
+</html>
