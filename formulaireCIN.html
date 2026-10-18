@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Sprint 8 - Formulaire CIN (reference)</title></head>
+<body>
+<h2>[Sprint 8] Formulaire upload CIN - reference</h2>
+<p>Ce fichier est une copie de reference. La version fonctionnelle est rendue en HTML inline
+par la methode GET /employe/formulaire-cin (car le web.xml mappe le servlet sur /*).</p>
+<form action="http://localhost:8080/TestApplication/employe/save-cin"
+      method="POST" enctype="multipart/form-data">
+  Nom : <input type="text" name="nom"><br>
+  Age : <input type="text" name="age"><br>
+  Recto CIN : <input type="file" name="rectoCIN"><br>
+  <button type="submit">Soumettre</button>
+</form>
+</body>
+</html>
