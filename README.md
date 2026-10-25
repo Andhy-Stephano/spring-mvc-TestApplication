@@ -12,3 +12,10 @@ Application web utilisée pour tester le framework `mini-spring-framework`.
 - `@Authentified` sur `/auth/action` et `/auth/api/action`
 - `<init-param>` `sessionVariableName=utilisateur` dans `web.xml`
 - Sans connexion : réponse 401 (HTML ou JSON), avec connexion : action exécutée
+
+## SPRINT10 bis
+- `@Authentified("utilisateur")` sur `/auth/action` et `/auth/api/action`
+- `@Authentified("admin")` sur `/auth/admin` (autre variable de session)
+- `@Authentified` sans valeur sur `/auth/config` (nom lu dans `web.xml`)
+- Connexion simple via `/auth/login`, connexion admin via `/auth/login-admin`
+- Sans la bonne variable : réponse 401 et action non exécutée
