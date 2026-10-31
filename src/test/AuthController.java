@@ -5,80 +5,100 @@ import annotation.Controller;
 import annotation.GetMapping;
 import annotation.RestAPI;
 import jakarta.servlet.http.HttpServletRequest;
+import model.User;
 import util.MySession;
 
 @Controller
 public class AuthController {
 
-    // URL publique : accessible sans etre connecte
+    // Accès public
     @GetMapping("/auth/public")
     public String actionPublique() {
         return "[Sprint 10 bis] Action publique executee : aucune authentification demandee.";
     }
 
-    // Connexion utilisateur : la variable 'utilisateur' est mise en session
+    // Connexion simple (mode Sprint 10 classique)
     @GetMapping("/auth/login")
     public String login(MySession session) {
         session.set("utilisateur", "Andhy");
-        session.set("role", "etudiant");
-        return "[Sprint 10 bis] Connexion reussie pour Andhy."
-             + " La variable 'utilisateur' est presente en session."
-             + " Va sur /auth/action, /auth/config ou /auth/admin";
+        return "[Sprint 10] Connexion reussie pour Andhy. Variable 'utilisateur' mise en session.";
     }
 
-    // Connexion administrateur : on utilise une AUTRE variable de session
-    @GetMapping("/auth/login-admin")
-    public String loginAdmin(MySession session) {
-        session.set("admin", "Administrateur");
-        return "[Sprint 10 bis] Connexion admin reussie."
-             + " La variable 'admin' est presente en session. Va sur /auth/admin";
+    // Connexion avec PROFIL + ROLE PROFESSEUR
+    @GetMapping("/auth/login-prof")
+    public String loginProf(MySession session) {
+        User user = new User("Rakoto Jean", "rj_prof", "PROFESSEUR");
+        session.set("user", user);
+        session.set("utilisateur", user.getNom());
+        return "[Sprint 10 bis] Connexion reussie en tant que PROFESSEUR<br/>"
+             + "Profil mis en session sous la variable 'user' avec role(s) : PROFESSEUR";
     }
 
-    // L'annotation impose le nom de la variable de session (convention)
-    @Authentified("utilisateur")
-    @GetMapping("/auth/action")
-    public String actionProtegee(MySession session, HttpServletRequest request) {
-        String utilisateur = session.get("utilisateur", String.class);
-        Object attributRequete = request.getAttribute("utilisateur");
-        return "[Sprint 10 bis] Action protegee par @Authentified(\"utilisateur\")"
-             + " executee pour " + utilisateur
-             + " (attribut de requete = " + attributRequete + ")";
+    // Connexion avec PROFIL + ROLE ETUDIANT
+    @GetMapping("/auth/login-etud")
+    public String loginEtud(MySession session) {
+        User user = new User("Rasoa Fara", "rf_etud", "ETUDIANT");
+        session.set("user", user);
+        session.set("utilisateur", user.getNom());
+        return "[Sprint 10 bis] Connexion reussie en tant que ETUDIANT<br/>"
+             + "Profil mis en session sous la variable 'user' avec role(s) : ETUDIANT";
     }
 
-    // Autre variable de session : seuls les administrateurs passent ici
-    @Authentified("admin")
-    @GetMapping("/auth/admin")
-    public String actionAdmin(MySession session, HttpServletRequest request) {
-        String admin = session.get("admin", String.class);
-        Object attributRequete = request.getAttribute("admin");
-        return "[Sprint 10 bis] Action protegee par @Authentified(\"admin\")"
-             + " executee pour " + admin
-             + " (attribut de requete = " + attributRequete + ")";
+    // Connexion avec PROFIL + PLUSIEURS ROLES
+    @GetMapping("/auth/login-chef")
+    public String loginChef(MySession session) {
+        User user = new User("Andriamanga Paul", "ap_chef", "PROFESSEUR", "CHEF_DE_DEPARTEMENT");
+        session.set("user", user);
+        session.set("utilisateur", user.getNom());
+        return "[Sprint 10 bis] Connexion reussie avec plusieurs rôles<br/>"
+             + "Profil mis en session sous la variable 'user' avec role(s) : PROFESSEUR, CHEF_DE_DEPARTEMENT";
     }
 
-    // Aucune valeur dans l'annotation : le nom vient de l'init-param (configuration)
+    // Seul PROFESSEUR peut ajouter un cours
+    @Authentified(roles = {"PROFESSEUR"})
+    @GetMapping("/cours/ajouter")
+    public String ajouterCours(HttpServletRequest request) {
+        Object profil = request.getAttribute("user");
+        if (profil == null) {
+            profil = request.getAttribute("utilisateur");
+        }
+        return "[Sprint 10 bis] Cours ajouté avec succès !<br/>"
+             + "Accès réservé uniquement aux PROFESSEUR.<br/>"
+             + "Profil dans request : " + profil;
+    }
+
+    // PROFESSEUR OU CHEF_DE_DEPARTEMENT peuvent valider
+    @Authentified(roles = {"PROFESSEUR", "CHEF_DE_DEPARTEMENT"})
+    @GetMapping("/cours/valider")
+    public String validerCours(HttpServletRequest request) {
+        Object profil = request.getAttribute("user");
+        if (profil == null) {
+            profil = request.getAttribute("utilisateur");
+        }
+        return "[Sprint 10 bis] Cours validé avec succès !<br/>"
+             + "Accès réservé aux PROFESSEUR ou CHEF_DE_DEPARTEMENT.<br/>"
+             + "Profil dans request : " + profil;
+    }
+
+    // Mode Sprint 10 classique avec l'init-param
     @Authentified
     @GetMapping("/auth/config")
-    public String actionConfiguration(MySession session, HttpServletRequest request) {
-        String utilisateur = session.get("utilisateur", String.class);
-        Object attributRequete = request.getAttribute("utilisateur");
-        return "[Sprint 10 bis] Action protegee par l'init-param 'sessionVariableName'"
-             + " executee pour " + utilisateur
-             + " (attribut de requete = " + attributRequete + ")";
+    public String actionConfiguration() {
+        return "[Sprint 10] Accès autorisé via l'init-param 'sessionVariableName' = 'utilisateur'";
     }
 
-    // Meme controle mais en mode REST : renvoie du JSON ou une erreur 401 JSON
-    @Authentified("utilisateur")
+    // Mode REST protégé par rôles
+    @Authentified(roles = {"PROFESSEUR"})
     @RestAPI
-    @GetMapping("/auth/api/action")
-    public String actionProtegeeJson() {
-        return "{\"message\": \"Action REST protegee executee (Sprint 10 bis)\"}";
+    @GetMapping("/api/cours/ajouter")
+    public String ajouterCoursJson() {
+        return "{\"message\": \"Cours ajouté via API REST réservée aux PROFESSEUR\"}";
     }
 
-    // URL de deconnexion : on vide la session
+    // Déconnexion
     @GetMapping("/auth/logout")
     public String logout(MySession session) {
         session.clear();
-        return "[Sprint 10 bis] Session videe : les actions protegees refuseront l'acces.";
+        return "[Sprint 10 bis] Session vidée. Tous les accès protégés sont désormais refusés.";
     }
 }

@@ -12,6 +12,11 @@
             <param-name>sessionVariableName</param-name>
             <param-value>utilisateur</param-value>
         </init-param>
+        <!-- SPRINT 10 bis : nom de la variable de session contenant le profil / les roles de l'utilisateur connecte -->
+        <init-param>
+            <param-name>sessionRoleVariableName</param-name>
+            <param-value>user</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
